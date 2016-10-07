@@ -8,31 +8,52 @@ import {
 
 import ItemList from './ItemList.js';
 import DeckItem from './DeckItem.js';
-import Header from './Header.js';
-import Footer from './Footer.js';
+import DeckItemLeaf from './DeckItemLeaf.js';
+import DeckFooter from './DeckFooter.js';
 
 export default class DeckPage extends Component {
   render() {
     let json = this.props.json;
     let DeckItems = [];
-    for (let key in json) {
-      let name = json[key];
-      DeckItems.push(
-        <DeckItem
-          pressHandler={ () => {
-            this.props.onForward(key, name)
-          }}
-          title={name}
-          key={key}
-        />
-      );
+    if (this.props.isLeafPage) {
+      for (let key in json) {
+        let name = json[key]['name'];
+        // just a double check
+        if (json[key]['isLeaf']) {
+          DeckItems.push(
+            <DeckItemLeaf
+              key={key}
+              name={name}
+              pinyin={json[key]['pinyin']}
+              definition={json[key]['definition']}
+              pos={json[key]['pos']}
+            />
+          );
+        }
+      }
+    } else {
+      for (let key in json) {
+        let name = json[key]['name'];
+        // just a double check
+        if (!json[key]['isLeaf']) {
+          DeckItems.push(
+            <DeckItem
+              pressHandler={ () => {
+                this.props.onForward(key, name)
+              }}
+              key={key}
+              name={name}
+            />
+          );
+        }
+      }
     }
     return (
       <View style={{flex: 1}}>
         <ItemList style={{flex: 1}}>
           {DeckItems}
         </ItemList>
-        <Footer pressHandler={this.props.onBack} title={this.props.footer} />
+        <DeckFooter isLeafPage={this.props.isLeafPage} isHomePage={this.props.isHomePage} />
       </View>
     );
   }

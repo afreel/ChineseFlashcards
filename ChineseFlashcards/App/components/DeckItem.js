@@ -6,14 +6,15 @@ import {
   TouchableHighlight
 } from 'react-native';
 
-export default class DeckItem extends Component {
+import AppText from './AppText.js';
 
+export default class DeckItem extends Component {
   render() {
     return (
       <TouchableHighlight onPress={this.props.pressHandler}>
         <View style={styles.row}>
           <View style={styles.text}>
-            <Text>{this.props.title}</Text>
+            <AppText>{this.props.name}</AppText>
           </View>
         </View>
       </TouchableHighlight>
