@@ -2,51 +2,110 @@ import React, { Component } from 'react';
 import {
   StyleSheet,
   Text,
+  TextInput,
   View,
-  TouchableHighlight
+  TouchableHighlight,
+  Modal
 } from 'react-native';
 
 import AppText from './AppText.js';
+import BigButton from './BigButton.js';
+import NewDeckForm from './NewDeckForm.js';
+import NewVocabForm from './NewVocabForm.js';
+import DatabaseHandler from '../js/DatabaseHandler.js';
+
 
 export default class DeckFooter extends Component {
-  addDeck() {
 
+  constructor(props) {
+    super(props);
+    this.state = {modalVisible: false};
   }
 
-  addLeaf() {
+  setModalVisible(visible) {
+    this.setState({modalVisible: visible});
+  }
 
+  addDeck(name, parentId, isLeaf) {
+    DatabaseHandler.insertDeck(name, parentId, isLeaf).then(function() {
+      console.log('inserted deck: ' + name);
+    });
+  }
+
+  removeDeck(deckId) {
+    DatabaseHandler.removeDeck(deckId).then(function() {
+      console.log('removed deck with id: ' + deckId);
+    });
+  }
+
+  addLeaf(name, parentId, pinyin, definition, pos) {
+    DatabaseHandler.insertVocabulary(name, parentId, pinyin, definition, pos).then(function() {
+      console.log('inserted vocabulary: ' + name);
+    });
+  }
+
+  removeLeaf() {
+    DatabaseHandler.removeVocabulary(vocabId).then(function() {
+      console.log('removed vocab with id: ' + vocabId);
+    });
   }
 
   render() {
     let text;
     let pressHandler;
+    let form;
     if (this.props.isLeafPage) {
       text = 'Add Card';
-      pressHandler = this.addLeaf;
+      pressHandler = function(vocabName, pinyin, definition, pos) {
+        console.log('NEW VOCAB: ' + vocabName + ' with parentId ' + this.props.pageParentId);
+        this.addLeaf(vocabName, this.props.pageParentId, pinyin, definition, pos);
+      }.bind(this);
+      form =
+        <NewVocabForm
+          closeHandler={this.setModalVisible.bind(this, false)}
+          submitHandler={pressHandler}
+        />;
     } else {
       text = this.props.isHomePage ? 'Add Deck' : 'Add Subdeck';
-      pressHandler = this.addDeck;
+      pressHandler = function(deckName) {
+        console.log('NEW DECK: ' + deckName + ' with parentId ' + this.props.pageParentId);
+        this.addDeck(deckName, this.props.pageParentId, false);
+        // this.removeDeck(12);
+      }.bind(this);
+      form =
+        <NewDeckForm
+          closeHandler={this.setModalVisible.bind(this, false)}
+          submitHandler={pressHandler}
+          isHomePage={this.props.isHomePage}
+        />;
     }
     return (
-      <TouchableHighlight onPress={pressHandler}>
-        <View style={styles.footer}>
-          <Text style={styles.text}>
-            <AppText>{text}</AppText>
-          </Text>
-        </View>
-      </TouchableHighlight>
+      <View>
+        <Modal
+          animationType={"slide"}
+          transparent={false}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {
+            // update UI?
+          }}
+          >
+          <View>
+            {form}
+          </View>
+        </Modal>
+        <BigButton
+          style={styles.footerButton}
+          onPress={this.setModalVisible.bind(this, true)}
+        >
+          {text}
+        </BigButton>
+      </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  footer: {
-    height: 50,
-    backgroundColor: '#BDC3C7',
-  },
-  text: {
-    color: '#F8F9F9',
-    paddingTop: 15,
-    textAlign: 'center',
+  footerButton: {
+    backgroundColor: '#BDC3C7'
   }
 });

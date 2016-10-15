@@ -15,20 +15,12 @@ export default class DeckItemLeaf extends Component {
       <TouchableHighlight>
         <View style={styles.row}>
           <View style={styles.topline}>
-            <Text style={styles.name}>
-              <ChineseText>{this.props.name}</ChineseText>
-            </Text>
-            <Text style={styles.pinyin}>
-              <AppText>{this.props.pinyin}</AppText>
-            </Text>
+            <ChineseText style={styles.name}>{this.props.name}</ChineseText>
+            <AppText style={styles.pinyin}>{this.props.pinyin}</AppText>
           </View>
           <View style={styles.bottomline}>
-            <Text style={styles.pos}>
-              <AppText>[{this.props.pos}]</AppText>
-            </Text>
-            <Text style={styles.definition}>
-              <AppText>{this.props.definition}</AppText>
-            </Text>
+            <AppText style={styles.pos}>[{this.props.pos}]</AppText>
+            <AppText style={styles.definition}>{this.props.definition}</AppText>
           </View>
         </View>
       </TouchableHighlight>

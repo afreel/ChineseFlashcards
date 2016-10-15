@@ -12,8 +12,6 @@ import AppText from './AppText.js';
 
 import DatabaseHandler from '../js/DatabaseHandler.js';
 
-var db = DatabaseHandler.getDatabase();
-
 export default class DeckNavigator extends Component {
   // currently using state just for the first DB query so render has content...better way to do this?
   constructor(props) {
@@ -43,85 +41,31 @@ export default class DeckNavigator extends Component {
     var json = this.state.items;
     return (
       <Navigator
-        initialRoute={{header: "Home", depth: 0, json: json, isLeafPage: false, parentID: 1}}
+        initialRoute={{header: ['Home'], title: 'Home', depth: 0, json: json, isLeafPage: false, parentId: 1}}
         renderScene={(route, navigator) =>
           <DeckPage
-            header={route.header}
             json={route.json}
             isHomePage={route.depth === 0}
             isLeafPage={route.isLeafPage}
-            parentID={route.parentID}
+            parentId={route.parentId}
 
             onForward={ (selectedId, selectedName) => {
               const nextDepth = route.depth + 1;
-              const nextHeader = route.header + ' > ' + selectedName;
+              const nextHeader = route.header.concat([selectedName]);
+              const nextTitle = trimHeader(nextHeader);
+              console.log('clicked id: ' + selectedId);
               // get children of the selected deck, then push them to navigator
-              db.transaction((tx) => {
-                tx.executeSql('SELECT * FROM deckitems WHERE parent_id=' + selectedId, [], (tx, results) => {
-                  let deckItemsLen = results.rows.length;
-                  let items = {}
-                  let isLeafPage = false;
-                  let leafWordsToIds = {};
-                  for (let i = 0; i < deckItemsLen; i++) {
-                    let row = results.rows.item(i);
-                    if (row['leaf']) {
-                      isLeafPage = true;
-                      leafWordsToIds[row['name']] = row['item_id'];
-                    }
-                    items[row['item_id']] = {
-                      'name': row['name'],
-                      'isLeaf': row['leaf']
-                    }
-                  }
-                  // If our page contains a leaf (character), then we want to
-                  // query for character attributes in the 'vocabulary' table
-                  if (isLeafPage) {
-                    let leafWordsLen = Object.keys(leafWordsToIds).length;
-                    let leafWordsString = "(";
-                    let leavesAdded = 0;
-                    for (let leafWord in leafWordsToIds) {
-                      leafWordsString += "'";
-                      leafWordsString += leafWord;
-                      leafWordsString += "'";
-                      if (leavesAdded < leafWordsLen - 1) {
-                        leafWordsString += ",";
-                      }
-                      leavesAdded += 1;
-                    }
-                    leafWordsString += ")";
-                    db.transaction((tx) => {
-                      tx.executeSql('SELECT * FROM vocabulary WHERE word IN ' + leafWordsString, [], (tx, results) => {
-                        let leafItemsLen = results.rows.length;
-                        let leafItems = {};
-                        for (let i = 0; i < leafItemsLen; i++) {
-                          let row = results.rows.item(i);
-                          let leafKey = leafWordsToIds[row['word']];
-                          items[leafKey]['pinyin'] = row['pinyin'];
-                          items[leafKey]['definition'] = row['definition'];
-                          items[leafKey]['pos'] = row['pos'];
-                        }
-                        navigator.push({
-                          header: nextHeader,
-                          depth: nextDepth,
-                          json: items,
-                          isLeafPage: true,
-                          parentID: selectedId,
-                        });
-                      });
-                    });
-                  }
-                  // otherwise the push happens after the second DB call
-                  if (!isLeafPage) {
-                    navigator.push({
-                      header: nextHeader,
-                      depth: nextDepth,
-                      json: items,
-                      isLeafPage: false,
-                      parentID: selectedId,
-                    });
-                  }
+              DatabaseHandler.getNextItems(selectedId).then(function(results) {
+                navigator.push({
+                  header: nextHeader,
+                  title: nextTitle,
+                  depth: nextDepth,
+                  json: results.items,
+                  isLeafPage: results.isLeafPage,
+                  parentId: selectedId,
                 });
               });
+
             }}
 
             onBack={ () => {
@@ -132,43 +76,41 @@ export default class DeckNavigator extends Component {
           />
         }
         navigationBar={
-           <Navigator.NavigationBar
-             routeMapper={{
-               LeftButton: (route, navigator, index, navState) =>
-               {
-                 if (route.depth === 0) {
-                   return null;
-                 } else {
-                   return (
-                     <TouchableHighlight style={styles.backButton} onPress={() => navigator.pop()}>
-                       <Text style={styles.text}>
-                         <AppText>Back</AppText>
-                       </Text>
-                     </TouchableHighlight>
-                   );
-                 }
-               },
-               RightButton: (route, navigator, index, navState) =>
-                 {
-                   return (
-                     <TouchableHighlight style={styles.editButton}>
-                     <Text style={styles.text}>
-                       <AppText>Edit</AppText>
-                     </Text>
-                     </TouchableHighlight>
-                   );
-                 },
-               Title: (route, navigator, index, navState) =>
-                 {
-                   return (
-                   <Text style={styles.text}>
-                     <AppText>{route.header}</AppText>
-                   </Text>
-                   );
-                 },
-             }}
-             style={styles.header}
-           />
+          <Navigator.NavigationBar
+            routeMapper={{
+              LeftButton: (route, navigator, index, navState) =>
+                {
+                  if (route.depth === 0) {
+                    return null;
+                  } else {
+                    return (
+                      <TouchableHighlight style={styles.backButton} onPress={() => navigator.pop()}>
+                        <View>
+                          <AppText style={styles.text}>Back</AppText>
+                        </View>
+                      </TouchableHighlight>
+                    );
+                  }
+                },
+              RightButton: (route, navigator, index, navState) =>
+                {
+                  return (
+                    <TouchableHighlight style={styles.editButton}>
+                      <View>
+                        <AppText style={styles.text}>Edit</AppText>
+                      </View>
+                    </TouchableHighlight>
+                  );
+                },
+              Title: (route, navigator, index, navState) =>
+                {
+                  return (
+                    <AppText style={styles.text}>{route.title}</AppText>
+                  );
+                },
+            }}
+            style={styles.header}
+          />
         }
         configureScene={(route, routeStack) =>
           Navigator.SceneConfigs.HorizontalSwipeJump
@@ -177,6 +119,34 @@ export default class DeckNavigator extends Component {
       />
     );
   }
+}
+
+trimHeader = function(title) {
+  let titleRev = title.slice().reverse();
+  let maxLen = 25;
+  var currLen = 0;
+  let i = 0;
+  let broken = false;
+  while (i < titleRev.length) {
+  	currLen += titleRev[i].length;
+    if (currLen > maxLen) {
+    	broken = true;
+    	break;
+    }
+    i++;
+  }
+  let displayables = title.slice().splice(-1 * i - 1);
+  var display = '';
+  if (broken) {
+  	display += '...';
+  } else {
+  	display += displayables[0];
+  }
+  for (let d = 1; d < displayables.length; d++) {
+  	display += ' > ';
+    display += displayables[d];
+  }
+  return display;
 }
 
 const styles = StyleSheet.create({

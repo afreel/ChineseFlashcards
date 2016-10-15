@@ -53,7 +53,11 @@ export default class DeckPage extends Component {
         <ItemList style={{flex: 1}}>
           {DeckItems}
         </ItemList>
-        <DeckFooter isLeafPage={this.props.isLeafPage} isHomePage={this.props.isHomePage} />
+        <DeckFooter
+          isLeafPage={this.props.isLeafPage}
+          isHomePage={this.props.isHomePage}
+          pageParentId={this.props.parentId}
+        />
       </View>
     );
   }
