@@ -8,6 +8,8 @@ import {
 import AppText from './AppText.js';
 import BigButton from './BigButton.js';
 
+import PinyinConverter from '../js/PinyinConverter.js';
+
 export default class NewDeckForm extends Component {
 
   constructor(props) {
@@ -31,6 +33,10 @@ export default class NewDeckForm extends Component {
 
   submitForm() {
     if (this.state.vocabName && this.state.pinyin && this.state.definition && this.state.pos) {
+      console.log('Vocab: ' + this.state.vocabName);
+      console.log('Pinyin: ' + this.state.pinyin);
+      console.log('Definition: ' + this.state.definition);
+      console.log('Pos: ' + this.state.pos);
       this.props.submitHandler(
         this.state.vocabName,
         this.state.pinyin,
@@ -63,6 +69,10 @@ export default class NewDeckForm extends Component {
           maxLength={20}
           onChangeText={(text) => this.setState({vocabName: text})}
           value={this.state.vocabName}
+          autoCapitalize={'none'}
+          placeholder={'你好'}
+          placeholderTextColor={'lavender'}
+          selectionColor={'#48C9B0'}
         />
 
         <AppText style={styles.inputDescription}>
@@ -71,8 +81,11 @@ export default class NewDeckForm extends Component {
         <TextInput
           style={styles.inputText}
           maxLength={32}
-          onChangeText={(text) => this.setState({pinyin: text})}
+          onChangeText={(text) => this.setState({pinyin: PinyinConverter.convert(text)})}
           value={this.state.pinyin}
+          autoCapitalize={'none'}
+          placeholder={'ni3hao3'}
+          placeholderTextColor={'lavender'}
         />
 
         <AppText style={styles.inputDescription}>
@@ -83,6 +96,9 @@ export default class NewDeckForm extends Component {
           maxLength={50}
           onChangeText={(text) => this.setState({definition: text})}
           value={this.state.definition}
+          autoCapitalize={'none'}
+          placeholder={'hello'}
+          placeholderTextColor={'lavender'}
         />
 
         <AppText style={styles.inputDescription}>
@@ -93,6 +109,9 @@ export default class NewDeckForm extends Component {
           maxLength={8}
           onChangeText={(text) => this.setState({pos: text})}
           value={this.state.pos}
+          autoCapitalize={'none'}
+          placeholder={'Noun'}
+          placeholderTextColor={'lavender'}
         />
 
         <BigButton style={styles.formSubmitButton} onPress={this.submitForm.bind(this)}>
@@ -119,10 +138,11 @@ const styles = StyleSheet.create({
     padding: 5,
     borderColor: '#BDC3C7',
     borderWidth: 1,
-    marginTop: 10,
+    marginTop: 3,
   },
   inputDescription: {
     fontSize: 18,
+    marginTop: 5,
   },
   formView: {
     margin: 30,

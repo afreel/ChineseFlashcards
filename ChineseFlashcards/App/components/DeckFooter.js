@@ -27,9 +27,11 @@ export default class DeckFooter extends Component {
   }
 
   addDeck(name, parentId, isLeaf) {
-    DatabaseHandler.insertDeck(name, parentId, isLeaf).then(function() {
+    DatabaseHandler.insertDeck(name, parentId, isLeaf).then(function(value) {
       console.log('inserted deck: ' + name);
-    });
+      console.log('deck insert id: ' + value['insertId']);
+      this.props.addDeckElementDisplay(value['insertId'], name);
+    }.bind(this));
   }
 
   removeDeck(deckId) {
@@ -39,9 +41,12 @@ export default class DeckFooter extends Component {
   }
 
   addLeaf(name, parentId, pinyin, definition, pos) {
-    DatabaseHandler.insertVocabulary(name, parentId, pinyin, definition, pos).then(function() {
+    DatabaseHandler.insertVocabulary(name, parentId, pinyin, definition, pos).then(function(values) {
       console.log('inserted vocabulary: ' + name);
-    });
+      console.log('deck insert id: ' + values[0]['insertId']);
+      console.log('vocab insert id: ' + values[1]['insertId']);
+      this.props.addLeafElementDisplay(values[0]['insertId'], name, pinyin, definition, pos);
+    }.bind(this));
   }
 
   removeLeaf() {
@@ -70,7 +75,6 @@ export default class DeckFooter extends Component {
       pressHandler = function(deckName) {
         console.log('NEW DECK: ' + deckName + ' with parentId ' + this.props.pageParentId);
         this.addDeck(deckName, this.props.pageParentId, false);
-        // this.removeDeck(12);
       }.bind(this);
       form =
         <NewDeckForm

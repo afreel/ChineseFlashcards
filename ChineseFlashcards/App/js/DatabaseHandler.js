@@ -5,6 +5,8 @@ var DatabaseHandler = (function()  {
   var db;
   var homeID = 1; // id of 'Home' db item, the root of our deck tree
 
+  //SQLite.deleteDatabase({name : db_name, location : "~data/mainDB"});
+
   db = SQLite.openDatabase(
     {name : db_name, createFromLocation : "~data/mainDB"},
     () => console.log("SQL Database Opened"),
@@ -51,11 +53,11 @@ var DatabaseHandler = (function()  {
 
   function insertVocabulary (name, parentId, pinyin, definition, pos) {
     let deckPromise = insertDeck(name, parentId, true);
-    let vocabPromise = executeSql('INSERT INTO vocabulary (name, pinyin, definition, pos) VALUES (' +
+    let vocabPromise = executeSql('INSERT INTO vocabulary (word, pinyin, definition, pos) VALUES (' +
       '"' + name + '"' + ',' +
       '"' + pinyin + '"' + ',' +
       '"' + definition + '"' + ',' +
-      '"' + pos + '"' + ',' +
+      '"' + pos + '"' +
     ');');
     return Promise.all([deckPromise, vocabPromise]);
   }

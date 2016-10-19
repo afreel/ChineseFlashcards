@@ -12,8 +12,34 @@ import DeckItemLeaf from './DeckItemLeaf.js';
 import DeckFooter from './DeckFooter.js';
 
 export default class DeckPage extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = this.props.json;
+  }
+
+  addDeckElement(id, name) {
+    console.log('Attempting to add deck element ' + name + ' with id ' + id);
+    let addState = {};
+    addState[id] = {'name': name};
+    this.setState(addState);
+  }
+
+  addLeafElement(id, name, pinyin, definition, pos) {
+    console.log('Attempting to add leaf element ' + name + ' with id ' + id);
+    let addState = {};
+    addState[id] = {
+      'name': name,
+      'pinyin': pinyin,
+      'definition': definition,
+      'pos': pos,
+      'isLeaf': 1
+    };
+    this.setState(addState);
+  }
+
   render() {
-    let json = this.props.json;
+    let json = this.state;
     let DeckItems = [];
     if (this.props.isLeafPage) {
       for (let key in json) {
@@ -57,6 +83,8 @@ export default class DeckPage extends Component {
           isLeafPage={this.props.isLeafPage}
           isHomePage={this.props.isHomePage}
           pageParentId={this.props.parentId}
+          addDeckElementDisplay={this.addDeckElement.bind(this)}
+          addLeafElementDisplay={this.addLeafElement.bind(this)}
         />
       </View>
     );
