@@ -41,37 +41,28 @@ export default class DeckPage extends Component {
   render() {
     let json = this.state;
     let DeckItems = [];
-    if (this.props.isLeafPage) {
-      for (let key in json) {
-        let name = json[key]['name'];
-        // just a double check
-        if (json[key]['isLeaf']) {
-          DeckItems.push(
-            <DeckItemLeaf
-              key={key}
-              name={name}
-              pinyin={json[key]['pinyin']}
-              definition={json[key]['definition']}
-              pos={json[key]['pos']}
-            />
-          );
-        }
-      }
-    } else {
-      for (let key in json) {
-        let name = json[key]['name'];
-        // just a double check
-        if (!json[key]['isLeaf']) {
-          DeckItems.push(
-            <DeckItem
-              pressHandler={ () => {
-                this.props.onForward(key, name)
-              }}
-              key={key}
-              name={name}
-            />
-          );
-        }
+    for (let key in json) {
+      let name = json[key]['name'];
+      if (json[key]['isLeaf']) {
+        DeckItems.push(
+          <DeckItemLeaf
+            key={key}
+            name={name}
+            pinyin={json[key]['pinyin']}
+            definition={json[key]['definition']}
+            pos={json[key]['pos']}
+          />
+        );
+      } else {
+        DeckItems.push(
+          <DeckItem
+            pressHandler={ () => {
+              this.props.onForward(key, name)
+            }}
+            key={key}
+            name={name}
+          />
+        );
       }
     }
     return (
@@ -80,7 +71,6 @@ export default class DeckPage extends Component {
           {DeckItems}
         </ItemList>
         <DeckFooter
-          isLeafPage={this.props.isLeafPage}
           isHomePage={this.props.isHomePage}
           pageParentId={this.props.parentId}
           addDeckElementDisplay={this.addDeckElement.bind(this)}

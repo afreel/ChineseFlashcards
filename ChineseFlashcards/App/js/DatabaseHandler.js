@@ -107,7 +107,7 @@ var DatabaseHandler = (function()  {
           'isLeaf': row['leaf']
         }
       }
-      // If there are no leaves, return a Promiese for the items
+      // If there are no leaves, return a Promise for the items
       if (!isLeafPage) {
         return new Promise(function(resolve, reject) {
           resolve({items: items, isLeafPage: false});

@@ -19,11 +19,25 @@ export default class DeckFooter extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {modalVisible: false};
+    this.state = {
+      newDeckModalVisible: false,
+      newVocabModalVisible: false
+    };
   }
 
-  setModalVisible(visible) {
-    this.setState({modalVisible: visible});
+  setNewDeckModalVisible(visible) {
+    this.setState({newDeckModalVisible: visible});
+  }
+
+  setNewVocabModalVisible(visible) {
+    this.setState({newVocabModalVisible: visible});
+  }
+
+  hideModals() {
+    this.setState({
+      newDeckModalVisible: false,
+      newVocabModalVisible: false
+    });
   }
 
   addDeck(name, parentId, isLeaf) {
@@ -56,53 +70,82 @@ export default class DeckFooter extends Component {
   }
 
   render() {
-    let text;
-    let pressHandler;
-    let form;
-    if (this.props.isLeafPage) {
-      text = 'Add Card';
-      pressHandler = function(vocabName, pinyin, definition, pos) {
+    let addDeckPressHandler;
+    let addDeckForm;
+    let addDeckFooterButton;
+
+    let addVocabPressHandler;
+    let addVocabForm;
+    let addVocabFooterButton;
+
+    // ADD DECK COMPONENTS
+    addDeckPressHandler = function(deckName) {
+      console.log('NEW DECK: ' + deckName + ' with parentId ' + this.props.pageParentId);
+      this.addDeck(deckName, this.props.pageParentId, false);
+    }.bind(this);
+
+    addDeckForm =
+      <NewDeckForm
+        closeHandler={this.setNewDeckModalVisible.bind(this, false)}
+        submitHandler={addDeckPressHandler}
+        isHomePage={this.props.isHomePage}
+      />;
+
+    addDeckFooterButton =
+      <BigButton
+        style={styles.footerButton}
+        onPress={this.setNewDeckModalVisible.bind(this, true)}
+        >
+        {this.props.isHomePage ? 'Add Deck' : 'Add Subdeck'}
+      </BigButton>;
+
+    // ADD VOCAB COMPONENTS
+    // home page can only add Decks, all over pages can add Subdecks or Vocab
+    if (!this.props.isHomePage) {
+      addVocabPressHandler = function(vocabName, pinyin, definition, pos) {
         console.log('NEW VOCAB: ' + vocabName + ' with parentId ' + this.props.pageParentId);
         this.addLeaf(vocabName, this.props.pageParentId, pinyin, definition, pos);
       }.bind(this);
-      form =
+
+      addVocabForm =
         <NewVocabForm
-          closeHandler={this.setModalVisible.bind(this, false)}
-          submitHandler={pressHandler}
+          closeHandler={this.setNewVocabModalVisible.bind(this, false)}
+          submitHandler={addVocabPressHandler}
         />;
-    } else {
-      text = this.props.isHomePage ? 'Add Deck' : 'Add Subdeck';
-      pressHandler = function(deckName) {
-        console.log('NEW DECK: ' + deckName + ' with parentId ' + this.props.pageParentId);
-        this.addDeck(deckName, this.props.pageParentId, false);
-      }.bind(this);
-      form =
-        <NewDeckForm
-          closeHandler={this.setModalVisible.bind(this, false)}
-          submitHandler={pressHandler}
-          isHomePage={this.props.isHomePage}
-        />;
+
+      addVocabFooterButton =
+        <BigButton
+          style={styles.footerButton}
+          onPress={this.setNewVocabModalVisible.bind(this, true)}
+          >
+          {'Add Card'}
+        </BigButton>;
     }
+
     return (
       <View>
         <Modal
           animationType={"slide"}
           transparent={false}
-          visible={this.state.modalVisible}
-          onRequestClose={() => {
-            // update UI?
-          }}
+          visible={this.state.newDeckModalVisible}
           >
           <View>
-            {form}
+            {addDeckForm}
           </View>
         </Modal>
-        <BigButton
-          style={styles.footerButton}
-          onPress={this.setModalVisible.bind(this, true)}
-        >
-          {text}
-        </BigButton>
+        <Modal
+          animationType={"slide"}
+          transparent={false}
+          visible={this.state.newVocabModalVisible}
+          >
+          <View>
+            {addVocabForm}
+          </View>
+        </Modal>
+        <View style={{flex: 1, flexDirection: 'row'}}>
+          {addDeckFooterButton}
+          {addVocabFooterButton}
+        </View>
       </View>
     );
   }
