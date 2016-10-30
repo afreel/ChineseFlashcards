@@ -5,10 +5,10 @@ var DatabaseHandler = (function()  {
   var db;
   var homeID = 1; // id of 'Home' db item, the root of our deck tree
 
-  //SQLite.deleteDatabase({name : db_name, location : "~data/mainDB"});
+  //SQLite.deleteDatabase({name : db_name, location : 1});
 
   db = SQLite.openDatabase(
-    {name : db_name, createFromLocation : "~data/mainDB"},
+    {name : db_name, createFromLocation : 1},
     () => console.log("SQL Database Opened"),
     (err) => console.log("SQL Error: " + err),
   );
@@ -53,7 +53,8 @@ var DatabaseHandler = (function()  {
 
   function insertVocabulary (name, parentId, pinyin, definition, pos) {
     let deckPromise = insertDeck(name, parentId, true);
-    let vocabPromise = executeSql('INSERT INTO vocabulary (word, pinyin, definition, pos) VALUES (' +
+    let vocabPromise = executeSql('INSERT OR REPLACE INTO vocabulary (parent_id, word, pinyin, definition, pos) VALUES (' +
+      parentId + ',' +
       '"' + name + '"' + ',' +
       '"' + pinyin + '"' + ',' +
       '"' + definition + '"' + ',' +
@@ -62,8 +63,8 @@ var DatabaseHandler = (function()  {
     return Promise.all([deckPromise, vocabPromise]);
   }
 
-  function removeVocabulary (vocabId) {
-    return executeSql('DELETE FROM vocabulary WHERE item_id=' + vocabId);
+  function removeVocabulary (parentId, word) {
+    return executeSql('DELETE FROM vocabulary WHERE parent_id=' + parentId + ' AND word=' + word);
   }
 
   /**
@@ -115,20 +116,7 @@ var DatabaseHandler = (function()  {
       // If our page contains a leaf (character), then we want to
       // query for character attributes in the 'vocabulary' table
       } else {
-        let leafWordsLen = Object.keys(leafWordsToIds).length;
-        let leafWordsString = "(";
-        let leavesAdded = 0;
-        for (let leafWord in leafWordsToIds) {
-          leafWordsString += "'";
-          leafWordsString += leafWord;
-          leafWordsString += "'";
-          if (leavesAdded < leafWordsLen - 1) {
-            leafWordsString += ",";
-          }
-          leavesAdded += 1;
-        }
-        leafWordsString += ")";
-        return executeSql('SELECT * FROM vocabulary WHERE word IN ' + leafWordsString).then(function(results) {
+        return executeSql('SELECT * FROM vocabulary WHERE parent_id=' + parentId).then(function(results) {
           let leafItemsLen = results.rows.length;
           let leafItems = {};
           for (let i = 0; i < leafItemsLen; i++) {

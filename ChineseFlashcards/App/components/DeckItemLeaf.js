@@ -12,7 +12,7 @@ import ChineseText from './ChineseText.js';
 export default class DeckItemLeaf extends Component {
   render() {
     return (
-      <TouchableHighlight>
+      <TouchableHighlight onPress={this.props.pressHandler}>
         <View style={styles.row}>
           <View style={styles.topline}>
             <ChineseText style={styles.name}>{this.props.name}</ChineseText>
@@ -20,7 +20,13 @@ export default class DeckItemLeaf extends Component {
           </View>
           <View style={styles.bottomline}>
             <AppText style={styles.pos}>[{this.props.pos}]</AppText>
-            <AppText style={styles.definition}>{this.props.definition}</AppText>
+            <AppText
+              numberOfLines={1}
+              ellipsizeMode={'tail'}
+              style={styles.definition}
+              >
+              {this.props.definition}
+            </AppText>
           </View>
         </View>
       </TouchableHighlight>
@@ -60,5 +66,6 @@ const styles = StyleSheet.create({
   },
   definition: {
     paddingLeft: 5,
+    width: 300,
   }
 });

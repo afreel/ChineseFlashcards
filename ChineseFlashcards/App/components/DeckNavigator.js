@@ -49,6 +49,10 @@ export default class DeckNavigator extends Component {
             isLeafPage={route.isLeafPage}
             parentId={route.parentId}
 
+            onVocab={ (vocabulary, vocabIndex) => {
+              this.props.mainNavigator.push({name: 'Vocab', vocabulary: vocabulary, vocabIndex: vocabIndex});
+            }}
+
             onForward={ (selectedId, selectedName) => {
               const nextDepth = route.depth + 1;
               const nextHeader = route.header.concat([selectedName]);
@@ -123,7 +127,7 @@ export default class DeckNavigator extends Component {
 
 trimHeader = function(title) {
   let titleRev = title.slice().reverse();
-  let maxLen = 25;
+  let maxLen = 18; // this value controls how wide the header can get
   var currLen = 0;
   let i = 0;
   let broken = false;

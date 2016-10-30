@@ -41,11 +41,22 @@ export default class DeckPage extends Component {
   render() {
     let json = this.state;
     let DeckItems = [];
+    let vocabulary = [];
     for (let key in json) {
+      if (json[key]['isLeaf']) {
+        vocabulary.push(json[key]);
+      }
+    }
+    let vocabIndex = 0; // used to track which vocabulary card is clicked
+    for (let key in json) {
+      let localVocabIndex = vocabIndex;
       let name = json[key]['name'];
       if (json[key]['isLeaf']) {
         DeckItems.push(
           <DeckItemLeaf
+            pressHandler={ () => {
+              this.props.onVocab(vocabulary, localVocabIndex);
+            }}
             key={key}
             name={name}
             pinyin={json[key]['pinyin']}
@@ -53,11 +64,12 @@ export default class DeckPage extends Component {
             pos={json[key]['pos']}
           />
         );
+        vocabIndex += 1;
       } else {
         DeckItems.push(
           <DeckItem
             pressHandler={ () => {
-              this.props.onForward(key, name)
+              this.props.onForward(key, name);
             }}
             key={key}
             name={name}

@@ -5,12 +5,12 @@ import {
   View
 } from 'react-native';
 
-import DeckNavigator from '../components/DeckNavigator.js';
+import MainNavigator from '../components/MainNavigator.js';
 
 export default class App extends Component {
   render() {
     return (
-      <DeckNavigator />
+      <MainNavigator />
     );
   }
 }
