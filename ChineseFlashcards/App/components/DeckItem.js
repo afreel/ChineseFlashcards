@@ -13,8 +13,8 @@ export default class DeckItem extends Component {
     return (
       <TouchableHighlight onPress={this.props.pressHandler}>
         <View style={styles.row}>
-          <View style={styles.text}>
-            <AppText>{this.props.name}</AppText>
+          <View style={styles.textWrapper}>
+            <AppText style={styles.text}>{this.props.name}</AppText>
           </View>
         </View>
       </TouchableHighlight>
@@ -27,11 +27,14 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
-    height: 50,
+    height: 60,
     borderBottomWidth: 1,
     borderBottomColor: '#9B59B6',
   },
-  text: {
+  textWrapper: {
     justifyContent: 'center',
+  },
+  text: {
+    fontSize: 18
   }
 });

@@ -116,9 +116,10 @@ export default class DeckNavigator extends Component {
             style={styles.header}
           />
         }
-        configureScene={(route, routeStack) =>
-          Navigator.SceneConfigs.HorizontalSwipeJump
-        }
+        configureScene={(route, routeStack) => ({
+          ...Navigator.SceneConfigs.HorizontalSwipeJump,
+          gestures: false
+        })}
         sceneStyle={styles.scene}
       />
     );
@@ -155,17 +156,17 @@ trimHeader = function(title) {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: '#9B59B6',
+    backgroundColor: '#9B59B6', // purple
   },
   text: {
-    color: '#F8F9F9',
-    paddingTop: 15,
+    color: '#F8F9F9', // white-grey
+    marginTop: 15,
   },
   backButton: {
-    paddingLeft: 5,
+    paddingLeft: 10,
   },
   editButton: {
-    paddingRight: 5,
+    paddingRight: 10,
   },
   scene: {
     paddingTop: 63,

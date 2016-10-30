@@ -3,10 +3,10 @@ import {
   Navigator,
   StyleSheet,
   Text,
-  View
+  View,
+  ScrollView
 } from 'react-native';
 
-import ItemList from './ItemList.js';
 import DeckItem from './DeckItem.js';
 import DeckItemLeaf from './DeckItemLeaf.js';
 import DeckFooter from './DeckFooter.js';
@@ -15,19 +15,26 @@ export default class DeckPage extends Component {
 
   constructor(props) {
     super(props);
-    this.state = this.props.json;
+    this.state = {
+      items: this.props.json,
+      scrollEnabled: true // needed to stop ScrollView when using Swipeout
+    };
+  }
+
+  _allowScroll(scrollEnabled) {
+    this.setState({ scrollEnabled: scrollEnabled });
   }
 
   addDeckElement(id, name) {
     console.log('Attempting to add deck element ' + name + ' with id ' + id);
-    let addState = {};
+    let addState = this.state.items;
     addState[id] = {'name': name};
-    this.setState(addState);
+    this.setState({items: addState});
   }
 
   addLeafElement(id, name, pinyin, definition, pos) {
     console.log('Attempting to add leaf element ' + name + ' with id ' + id);
-    let addState = {};
+    let addState = this.state.items;
     addState[id] = {
       'name': name,
       'pinyin': pinyin,
@@ -35,11 +42,11 @@ export default class DeckPage extends Component {
       'pos': pos,
       'isLeaf': 1
     };
-    this.setState(addState);
+    this.setState({items: addState});
   }
 
   render() {
-    let json = this.state;
+    let json = this.state.items;
     let DeckItems = [];
     let vocabulary = [];
     for (let key in json) {
@@ -56,6 +63,9 @@ export default class DeckPage extends Component {
           <DeckItemLeaf
             pressHandler={ () => {
               this.props.onVocab(vocabulary, localVocabIndex);
+            }}
+            scrollHandler={ (event) => {
+              this._allowScroll(event);
             }}
             key={key}
             name={name}
@@ -79,9 +89,9 @@ export default class DeckPage extends Component {
     }
     return (
       <View style={{flex: 1}}>
-        <ItemList style={{flex: 1}}>
+        <ScrollView scrollEnabled={this.state.scrollEnabled} style={{flex: 1}}>
           {DeckItems}
-        </ItemList>
+        </ScrollView>
         <DeckFooter
           isHomePage={this.props.isHomePage}
           pageParentId={this.props.parentId}
