@@ -11,13 +11,21 @@ import Swipeout from 'react-native-swipeout';
 import AppText from './AppText.js';
 import ChineseText from './ChineseText.js';
 
+import DatabaseHandler from '../js/DatabaseHandler.js';
+
 export default class DeckItemLeaf extends Component {
   render() {
     let swipeBtns = [{
       text: 'Delete',
       backgroundColor: 'red',
       underlayColor: 'black',
-      onPress: () => { console.log('deleting!!!!') }
+      onPress: () => {
+        console.log('Pressed to remove vocab deck with id: ' + this.props.deckId);
+        DatabaseHandler.removeVocabulary(this.props.parentId, this.props.name, this.props.deckId).then(function() {
+          console.log('Removed!');
+          this.props.removeLeafElementDisplay(this.props.deckId);
+        }.bind(this));
+      }
     }];
     return (
       <Swipeout right={swipeBtns}

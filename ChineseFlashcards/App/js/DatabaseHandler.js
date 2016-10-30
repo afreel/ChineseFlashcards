@@ -63,8 +63,10 @@ var DatabaseHandler = (function()  {
     return Promise.all([deckPromise, vocabPromise]);
   }
 
-  function removeVocabulary (parentId, word) {
-    return executeSql('DELETE FROM vocabulary WHERE parent_id=' + parentId + ' AND word=' + word);
+  function removeVocabulary (parentId, word, deckId) {
+    let deckPromise = removeDeck(deckId);
+    let vocabPromise = executeSql('DELETE FROM vocabulary WHERE parent_id=' + parentId + ' AND word=' + '"' + word + '"');
+    return Promise.all([deckPromise, vocabPromise]);
   }
 
   /**
@@ -153,8 +155,8 @@ var DatabaseHandler = (function()  {
     insertVocabulary: function(name, parentId, pinyin, definition, pos) {
       return insertVocabulary(name, parentId, pinyin, definition, pos);
     },
-    removeVocabulary: function(vocabId) {
-      return removeVocabulary(vocabId);
+    removeVocabulary: function(parentId, word, deckId) {
+      return removeVocabulary(parentId, word, deckId);
     }
   }
 

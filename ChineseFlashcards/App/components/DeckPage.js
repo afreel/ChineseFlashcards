@@ -45,6 +45,13 @@ export default class DeckPage extends Component {
     this.setState({items: addState});
   }
 
+  removeLeafElement(id) {
+    console.log('Attempting to remove leaf element with id ' + id);
+    let removeState = this.state.items;
+    delete removeState[id];
+    this.setState({items: removeState});
+  }
+
   render() {
     let json = this.state.items;
     let DeckItems = [];
@@ -68,10 +75,13 @@ export default class DeckPage extends Component {
               this._allowScroll(event);
             }}
             key={key}
+            deckId={key}
             name={name}
             pinyin={json[key]['pinyin']}
             definition={json[key]['definition']}
             pos={json[key]['pos']}
+            parentId={this.props.parentId}
+            removeLeafElementDisplay={this.removeLeafElement.bind(this)}
           />
         );
         vocabIndex += 1;
